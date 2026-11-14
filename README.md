@@ -14,6 +14,8 @@ aarch64(Apple silicon, Graviton 등 Arm 머신)를 모두 지원합니다. 빌�
 | x86_64 | `linux/amd64` | [aws-emulator-x86_64.rpm](https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-x86_64.rpm) |
 | aarch64 | `linux/arm64` | [aws-emulator-aarch64.rpm](https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-aarch64.rpm) |
 
+지원 기능과 제한 사항은 [docs/FEATURES.md](docs/FEATURES.md)에 정리되어 있습니다.
+
 ## 참고 문서
 
 - [Docker로 시작하기](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-docker.html) — 이 이미지가 따르는 문서

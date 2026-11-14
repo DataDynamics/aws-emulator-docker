@@ -1,4 +1,4 @@
-# aws-emulator-docker
+# AWS Emulator Docker
 
 Docker image for [AWS Emulator](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-docker.html).
 A single `Dockerfile` covers both x86_64 (Intel/AMD Linux, Windows, Intel Macs) and

@@ -14,7 +14,7 @@ aarch64(Apple silicon, Graviton 등 Arm 머신)를 모두 지원합니다. 빌�
 | x86_64 | `linux/amd64` | [aws-emulator-x86_64.rpm](https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-x86_64.rpm) |
 | aarch64 | `linux/arm64` | [aws-emulator-aarch64.rpm](https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-aarch64.rpm) |
 
-지원 기능과 제한 사항은 [docs/FEATURES.md](docs/FEATURES.md)에 정리되어 있습니다.
+지원 기능과 제한 사항은 [docs/FEATURES.md](docs/FEATURES.md)에, 지원 서비스 전체 목록은 [docs/SERVICES.md](docs/SERVICES.md)에 정리되어 있습니다.
 
 ## 참고 문서
 
@@ -57,6 +57,52 @@ Linux에서는 `docker run` 바로 뒤에 `--user "$(id -u):$(id -g)"`를 추가
 ```sh
 curl --cacert ~/.aws/emulator/9297/ca.pem https://127.0.0.1:9297/__admin/health
 ```
+
+## 지원하는 AWS 서비스
+
+RPM 1.0.351-1에는 AWS 서비스 436개의 API가 들어 있습니다. 전체 목록은
+[docs/SERVICES.md](docs/SERVICES.md)에 있습니다.
+
+- **목록의 근거**: RPM의 빌드 커밋에 해당하는 [aws-emulator 소스](https://github.com/aws/aws-emulator)의 서비스 구성입니다.
+- **지원 수준은 서비스마다 다름**: 목록에 있어도 모든 작업이 구현된 것은 아니며, 구현되지 않은 작업은 HTTP 501 `NotImplemented`를 반환합니다.
+- **실제 응답 확인**: 이 이미지로 띄운 에뮬레이터에 서비스마다 조회 작업 하나씩을 보냈을 때 257개 서비스가 성공했고, 87개는 그 작업이 501이었습니다. 나머지는 인자·구독 관련 오류를 반환했거나 확인할 작업이 없었습니다.
+- **충실도 테스트**: AWS가 공개한 [충실도 테스트](https://github.com/aws/aws-emulator-evaluation-suite) 29,676개가 351개 서비스를 다룹니다. 통과 점수는 [릴리스 페이지](https://github.com/aws/aws-emulator/releases)에서 확인합니다.
+
+충실도 테스트가 많은 상위 30개 서비스입니다. 테스트가 많을수록 AWS와 같은 동작이 폭넓게 검증됩니다.
+숫자는 그 서비스가 참여하는 테스트 개수이며, 통과 개수가 아닙니다.
+
+| 서비스 | Boto3 / AWS CLI 이름 | 충실도 테스트 수 |
+| --- | --- | ---: |
+| AWS Lambda | `lambda` | 2,470 |
+| AWS CloudFormation | `cloudformation` | 1,945 |
+| Amazon Simple Storage Service | `s3` | 1,677 |
+| Amazon Elastic Compute Cloud | `ec2` | 1,430 |
+| Amazon DynamoDB | `dynamodb` | 1,425 |
+| Amazon Simple Queue Service | `sqs` | 1,418 |
+| Amazon CloudWatch | `cloudwatch` | 1,090 |
+| Amazon API Gateway | `apigateway` | 993 |
+| Amazon CloudWatch Logs | `logs` | 920 |
+| AWS Step Functions | `stepfunctions` | 858 |
+| Amazon EventBridge | `events` | 840 |
+| AWS Identity and Access Management | `iam` | 785 |
+| Amazon Cognito Identity Provider | `cognito-idp` | 758 |
+| Amazon EC2 Container Service | `ecs` | 683 |
+| Amazon CloudFront | `cloudfront` | 570 |
+| Amazon Simple Notification Service | `sns` | 533 |
+| Elastic Load Balancing | `elbv2` | 516 |
+| Amazon Relational Database Service | `rds` | 512 |
+| Amazon Simple Systems Manager (SSM) | `ssm` | 505 |
+| AWS Glue | `glue` | 486 |
+| Amazon SageMaker Service | `sagemaker` | 477 |
+| AWS AppSync | `appsync` | 424 |
+| Amazon Athena | `athena` | 379 |
+| Auto Scaling | `autoscaling` | 377 |
+| AWS Key Management Service | `kms` | 373 |
+| Amazon Elastic Container Registry | `ecr` | 363 |
+| AWS Secrets Manager | `secretsmanager` | 360 |
+| Amazon Cognito Identity | `cognito-identity` | 337 |
+| Amazon OpenSearch Service | `opensearch` | 320 |
+| Amazon Kinesis | `kinesis` | 319 |
 
 ## SDK에서 사용하기
 

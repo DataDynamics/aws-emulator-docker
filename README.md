@@ -1,44 +1,44 @@
 # AWS Emulator Docker
 
-Docker image for [AWS Emulator](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-docker.html).
-A single `Dockerfile` covers both x86_64 (Intel/AMD Linux, Windows, Intel Macs) and
-aarch64 (Apple silicon, Graviton and other Arm machines): it installs the RPM that
-matches the build platform, so there is no per-architecture Dockerfile to keep in sync.
+[AWS Emulator](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-docker.html)용 Docker 이미지입니다.
+`Dockerfile` 하나로 x86_64(Intel/AMD Linux, Windows, Intel Mac)와
+aarch64(Apple silicon, Graviton 등 Arm 머신)를 모두 지원합니다. 빌드 플랫폼에 맞는 RPM을
+자동으로 설치하므로 아키텍처별 Dockerfile을 따로 관리할 필요가 없습니다.
 
-## RPM packages
+## RPM 패키지
 
-The image installs the latest LTS package for its architecture at build time.
+이미지는 빌드 시점에 해당 아키텍처의 최신 LTS 패키지를 설치합니다.
 
-| Architecture | Docker platform | RPM |
+| 아키텍처 | Docker 플랫폼 | RPM |
 | --- | --- | --- |
 | x86_64 | `linux/amd64` | [aws-emulator-x86_64.rpm](https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-x86_64.rpm) |
 | aarch64 | `linux/arm64` | [aws-emulator-aarch64.rpm](https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-aarch64.rpm) |
 
-## References
+## 참고 문서
 
-- [Getting started with Docker](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-docker.html) — the page this image follows
-- [Getting started on Linux](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-linux.html) — installing the RPM directly
-- [Setting up AWS Emulator](https://docs.aws.amazon.com/emulator/latest/userguide/setting-up.html) — prerequisites
-- [Pointing your SDK at a local emulator](https://docs.aws.amazon.com/emulator/latest/userguide/point-sdk-to-emulator.html#point-sdk-env)
-- [Command reference](https://docs.aws.amazon.com/emulator/latest/userguide/cli-reference.html) — options you can append to `docker run`
-- [Turning telemetry off](https://docs.aws.amazon.com/emulator/latest/userguide/telemetry.html#telemetry-opt-out)
+- [Docker로 시작하기](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-docker.html) — 이 이미지가 따르는 문서
+- [Linux에서 시작하기](https://docs.aws.amazon.com/emulator/latest/userguide/getting-started-linux.html) — RPM을 직접 설치하는 방법
+- [AWS Emulator 설정](https://docs.aws.amazon.com/emulator/latest/userguide/setting-up.html) — 사전 준비 사항
+- [SDK를 로컬 에뮬레이터에 연결하기](https://docs.aws.amazon.com/emulator/latest/userguide/point-sdk-to-emulator.html#point-sdk-env)
+- [명령 레퍼런스](https://docs.aws.amazon.com/emulator/latest/userguide/cli-reference.html) — `docker run` 뒤에 붙일 수 있는 옵션
+- [텔레메트리 끄기](https://docs.aws.amazon.com/emulator/latest/userguide/telemetry.html#telemetry-opt-out)
 
-## Build
+## 빌드
 
 ```sh
 docker build -t aws-emulator .
 ```
 
-This builds for the machine you are on. To build for the other architecture, name
-the platform (running the result on a different CPU needs QEMU emulation, which
-Docker Desktop includes):
+현재 사용 중인 머신의 아키텍처로 빌드됩니다. 다른 아키텍처로 빌드하려면 플랫폼을
+지정합니다. 빌드한 이미지를 다른 CPU에서 실행하려면 QEMU 에뮬레이션이 필요하며,
+Docker Desktop에는 기본으로 포함되어 있습니다.
 
 ```sh
 docker build --platform linux/amd64 -t aws-emulator .   # x86_64
 docker build --platform linux/arm64 -t aws-emulator .   # aarch64
 ```
 
-## Run
+## 실행
 
 ```sh
 mkdir -p ~/.aws/emulator
@@ -48,19 +48,19 @@ docker run --rm --memory=2g --memory-swap=2g -p 127.0.0.1:$PORT:$PORT \
   aws-emulator -p $PORT
 ```
 
-Health check (the endpoint is HTTPS, signed by the emulator's own CA):
+Linux에서는 `docker run` 바로 뒤에 `--user "$(id -u):$(id -g)"`를 추가합니다.
+
+상태 확인(엔드포인트는 HTTPS이며 에뮬레이터 자체 CA로 서명됩니다):
 
 ```sh
 curl --cacert ~/.aws/emulator/9297/ca.pem https://127.0.0.1:9297/__admin/health
 ```
 
-On Linux, add `--user "$(id -u):$(id -g)"` after `docker run`.
+## 테스트
 
-## Test
-
-`test/test.sh` builds the image, checks its architecture, installed RPM, user,
-port and entrypoint, then starts a container as shown above and waits for the
-health endpoint. It needs only Docker, bash and curl.
+`test/test.sh`는 이미지를 빌드하고 아키텍처, 설치된 RPM, 실행 사용자, 포트,
+entrypoint를 검사한 뒤, 위의 실행 방법대로 컨테이너를 띄워 상태 확인 엔드포인트가
+응답할 때까지 기다립니다. Docker, bash, curl만 있으면 됩니다.
 
 ```sh
 test/test.sh
@@ -70,6 +70,6 @@ test/test.sh
 PLATFORM=linux/arm64 test/test.sh
 ```
 
-`PORT`, `IMAGE`, `BUILD_OPTS` (extra `docker build` options) and `SKIP_BUILD=1`
-are also honored. GitHub Actions runs the script on native x86_64 and aarch64
-runners (`.github/workflows/test.yml`).
+`PORT`, `IMAGE`, `BUILD_OPTS`(`docker build` 추가 옵션), `SKIP_BUILD=1` 환경 변수도
+사용할 수 있습니다. GitHub Actions는 x86_64와 aarch64 네이티브 러너에서 이 스크립트를
+실행합니다(`.github/workflows/test.yml`).
